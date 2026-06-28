@@ -217,7 +217,7 @@ async function checkLimitOrNotify(ctx) {
   if (tokenInfo.limit !== Infinity && tokenInfo.remaining <= 0) {
     const { plan } = getEffectivePlan(userId);
     const cfg = getPlanConfig(plan);
-    const resetTimeStr = new Date(tokenInfo.resetAt).toLocaleString(lang === 'ru' ? 'ru-RU' : lang === 'uz' ? 'uz-UZ' : 'en-US', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+    const resetTimeStr = new Date(tokenInfo.resetAt).toLocaleString(lang === 'ru' ? 'ru-RU' : lang === 'uz' ? 'uz-UZ' : 'en-US', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', timeZone: 'Asia/Tashkent' });
     await ctx.reply(t.tokenLimitReached(cfg.name, resetTimeStr), {
       parse_mode: 'HTML',
       ...premiumKeyboard(lang),
@@ -228,7 +228,7 @@ async function checkLimitOrNotify(ctx) {
   const result = checkAndIncrementUsage(userId);
   if (!result.allowed) {
     const cfg = getPlanConfig(result.plan);
-    const resetTimeStr = new Date(result.resetAt).toLocaleString(lang === 'ru' ? 'ru-RU' : lang === 'uz' ? 'uz-UZ' : 'en-US', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+    const resetTimeStr = new Date(result.resetAt).toLocaleString(lang === 'ru' ? 'ru-RU' : lang === 'uz' ? 'uz-UZ' : 'en-US', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', timeZone: 'Asia/Tashkent' });
     await ctx.reply(t.dailyLimitReached(cfg.name, resetTimeStr), {
       parse_mode: 'HTML',
       ...premiumKeyboard(lang),

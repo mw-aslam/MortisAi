@@ -6,6 +6,7 @@ function fmtDate(ts = Date.now()) {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'Asia/Tashkent',
   });
 }
 

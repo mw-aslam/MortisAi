@@ -98,7 +98,7 @@ function dayMs() {
 }
 
 function resetMs() {
-  return 6 * 60 * 60 * 1000;
+  return 4 * 60 * 60 * 1000;
 }
 
 // Returns true if a brand-new row was created
@@ -190,9 +190,11 @@ function revokePlan(userId) {
 }
 
 function resetUsageIfNeeded(row, userId) {
-  if (Date.now() >= row.daily_reset_at) {
-    updateUsageStmt.run(0, 0, Date.now() + resetMs(), userId);
-    return { ...row, daily_used: 0, daily_tokens_used: 0, daily_reset_at: Date.now() + resetMs() };
+  const now = Date.now();
+  if (now >= row.daily_reset_at) {
+    const newResetAt = now + resetMs();
+    updateUsageStmt.run(0, 0, newResetAt, userId);
+    return { ...row, daily_used: 0, daily_tokens_used: 0, daily_reset_at: newResetAt };
   }
   return row;
 }
