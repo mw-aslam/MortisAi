@@ -34,7 +34,7 @@ function resolveTarget(arg) {
 }
 
 function fmtUntil(until) {
-  return until ? new Date(until).toLocaleString('ru-RU') : 'навсегда';
+  return until ? new Date(until).toLocaleString('ru-RU', { timeZone: 'Asia/Tashkent' }) : 'навсегда';
 }
 
 // ---- keyboards ----
@@ -92,7 +92,7 @@ async function sendUserInfo(ctx, userId) {
 
   const fullName = [row.first_name, row.last_name].filter(Boolean).join(' ') || '—';
   const username = row.username ? `@${row.username}` : 'не указан';
-  const created = new Date(row.created_at).toLocaleString('ru-RU');
+  const created = new Date(row.created_at).toLocaleString('ru-RU', { timeZone: 'Asia/Tashkent' });
 
   const t = usage.tokens;
   const tokenLine = t.limit === Infinity ? '∞' : `${t.used}/${t.limit} (${t.percentUsed}%)`;
@@ -120,7 +120,7 @@ async function notifyGiftedUser(ctx, userId, plan, until) {
       plan === 'free'
         ? '—'
         : until
-        ? new Date(until).toLocaleString(lang === 'ru' ? 'ru-RU' : lang === 'uz' ? 'uz-UZ' : 'en-US')
+        ? new Date(until).toLocaleString(lang === 'ru' ? 'ru-RU' : lang === 'uz' ? 'uz-UZ' : 'en-US', { timeZone: 'Asia/Tashkent' })
         : lang === 'ru' ? 'навсегда' : lang === 'uz' ? 'doim' : 'forever';
 
     if (plan === 'free') {

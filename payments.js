@@ -108,7 +108,7 @@ async function applyPayment(bot, ctx, packageKey, totalAmount, chargeId) {
     payload: packageKey,
   });
 
-  const until_str = until ? new Date(until).toLocaleDateString('ru-RU') : 'навсегда';
+  const until_str = until ? new Date(until).toLocaleString('ru-RU', { timeZone: 'Asia/Tashkent', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'навсегда';
   await ctx.reply(
     `✅ Оплата получена!\nВаш план: <b>${cfg.name}</b>\nДействует до: <b>${until_str}</b>`,
     { parse_mode: 'HTML' }
