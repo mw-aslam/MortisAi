@@ -44,6 +44,11 @@ db.exec(`
   if (!cols.includes('daily_tokens_used')) {
     db.exec('ALTER TABLE users ADD COLUMN daily_tokens_used INTEGER NOT NULL DEFAULT 0');
   }
+  if (!cols.includes('last_active_at')) {
+    db.exec('ALTER TABLE users ADD COLUMN last_active_at INTEGER NOT NULL DEFAULT 0');
+    // Backfill: set last_active_at = created_at for existing users
+    db.exec('UPDATE users SET last_active_at = created_at WHERE last_active_at = 0');
+  }
 }
 
 const MAX_STORED = 200; // messages kept per user in DB
@@ -76,6 +81,7 @@ const updateUsageStmt = db.prepare(
 const updateModelStmt = db.prepare('UPDATE users SET selected_model = ? WHERE user_id = ?');
 const findByUsernameStmt = db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE');
 const recentUsersStmt = db.prepare('SELECT * FROM users ORDER BY created_at DESC LIMIT ?');
+const updateLastActiveStmt = db.prepare('UPDATE users SET last_active_at = ? WHERE user_id = ?');
 
 // ---- group CRUD ----
 const getGroupStmt = db.prepare('SELECT * FROM groups WHERE chat_id = ?');
@@ -104,31 +110,47 @@ function resetMs() {
 // Returns true if a brand-new row was created
 function ensureUser(ctxFrom) {
   const userId = ctxFrom.id;
-  const row = getUserStmt.get(userId);
+  let row;
+  try {
+    row = getUserStmt.get(userId);
+  } catch (e) {
+    console.error('[ensureUser] getUserStmt error:', e.message);
+    return false;
+  }
   if (!row) {
-    insertUserStmt.run(
-      userId,
-      'ru',
-      ctxFrom.username || null,
-      ctxFrom.first_name || null,
-      ctxFrom.last_name || null,
-      Date.now(),
-      Date.now() + resetMs()
-    );
+    try {
+      insertUserStmt.run(
+        userId,
+        'ru',
+        ctxFrom.username || null,
+        ctxFrom.first_name || null,
+        ctxFrom.last_name || null,
+        Date.now(),
+        Date.now() + resetMs()
+      );
+      console.log(`[ensureUser] New user saved: ${userId} (@${ctxFrom.username || 'no_username'})`);
+    } catch (e) {
+      console.error(`[ensureUser] INSERT failed for user ${userId}:`, e.message);
+      return false;
+    }
     return true;
   }
   // Keep profile info fresh
-  if (
-    row.username !== (ctxFrom.username || null) ||
-    row.first_name !== (ctxFrom.first_name || null) ||
-    row.last_name !== (ctxFrom.last_name || null)
-  ) {
-    updateProfileStmt.run(
-      ctxFrom.username || null,
-      ctxFrom.first_name || null,
-      ctxFrom.last_name || null,
-      userId
-    );
+  try {
+    if (
+      row.username !== (ctxFrom.username || null) ||
+      row.first_name !== (ctxFrom.first_name || null) ||
+      row.last_name !== (ctxFrom.last_name || null)
+    ) {
+      updateProfileStmt.run(
+        ctxFrom.username || null,
+        ctxFrom.first_name || null,
+        ctxFrom.last_name || null,
+        userId
+      );
+    }
+  } catch (e) {
+    console.error(`[ensureUser] updateProfile error for ${userId}:`, e.message);
   }
   return false;
 }
@@ -363,6 +385,29 @@ function getRecentUsers(limit = 10) {
   return recentUsersStmt.all(limit);
 }
 
+// ---- last_active update ----
+function updateLastActive(userId) {
+  try {
+    updateLastActiveStmt.run(Date.now(), userId);
+  } catch (e) {
+    // non-critical, ignore
+  }
+}
+
+// ---- global stats ----
+function getStats() {
+  const now = Date.now();
+  const monthAgo = now - 30 * 24 * 60 * 60 * 1000;
+  const dayAgo   = now - 24 * 60 * 60 * 1000;
+
+  const total   = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+  const monthly = db.prepare('SELECT COUNT(*) AS c FROM users WHERE last_active_at >= ?').get(monthAgo).c;
+  const daily   = db.prepare('SELECT COUNT(*) AS c FROM users WHERE last_active_at >= ?').get(dayAgo).c;
+  const paid    = db.prepare("SELECT COUNT(*) AS c FROM users WHERE plan != 'free'").get().c;
+
+  return { total, monthly, daily, paid };
+}
+
 // ──────────────────────────────────────────────────────────────────────────
 // ---- pending "awaiting text input" state for button-driven flows ----
 // Used for things like: "admin pressed Gift -> bot asks for username ->
@@ -411,4 +456,6 @@ module.exports = {
   setPendingAction,
   getPendingAction,
   clearPendingAction,
+  updateLastActive,
+  getStats,
 };
