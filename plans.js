@@ -91,7 +91,7 @@ const PLANS = {
 };
 
 const STAR_PACKAGES = {
-  pro_week:  { plan: 'pro', days: 7,  stars: 50, label: '💎 Pro — 1 hafta (50 ⭐)' },
+  pro_week:  { plan: 'pro', days: 7,  stars: 1, label: '💎 Pro — 1 hafta (1 ⭐)' },
   pro_month: { plan: 'pro', days: 30, stars: 150, label: '💎 Pro — 1 oy (150 ⭐)' },
   max_month: { plan: 'max', days: 30, stars: 300, label: '👑 Max — 1 oy (300 ⭐)' },
 };

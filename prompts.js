@@ -120,7 +120,7 @@ const TEXTS = {
 
     // ---- plans / premium ----
     packages: {
-      pro_week: '💎 Pro — 1 неделя (50 ⭐)',
+      pro_week: '💎 Pro — 1 неделя (1 ⭐)',
       pro_month: '💎 Pro — 1 месяц (150 ⭐)',
       max_month: '👑 Max — 1 месяц (300 ⭐)',
     },
@@ -266,7 +266,7 @@ Guruhlarda: meni admin qilib qo'shing, ⭐ orqali faollashtiring va reply yoki @
     },
 
     packages: {
-      pro_week: '💎 Pro — 1 hafta (50 ⭐)',
+      pro_week: '💎 Pro — 1 hafta (1 ⭐)',
       pro_month: '💎 Pro — 1 oy (150 ⭐)',
       max_month: '👑 Max — 1 oy (300 ⭐)',
     },
@@ -408,7 +408,7 @@ In groups: add me as admin, activate with ⭐, then reply or @mention me.`,
     },
 
     packages: {
-      pro_week: '💎 Pro — 1 week (50 ⭐)',
+      pro_week: '💎 Pro — 1 week (1 ⭐)',
       pro_month: '💎 Pro — 1 month (150 ⭐)',
       max_month: '👑 Max — 1 month (300 ⭐)',
     },
