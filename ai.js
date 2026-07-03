@@ -192,6 +192,11 @@ async function callGroqForUser(userId, baseMessages) {
           continue; // try next key for the SAME model first
         }
         if (err.status === 413 || err.status === 503) { continue; }
+        if (!err.status) {
+          // Network-level failure (e.g. "Premature close", ECONNRESET) — transient, try next key
+          console.log(`[${keyObj.label}] ${MODEL_VERSIONS[model] || model}: tarmoq xatosi (${err.message}) — keyingisiga o'tyapman...`);
+          continue;
+        }
         throw err;
       }
     }
