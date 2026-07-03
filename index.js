@@ -26,12 +26,24 @@ const bot = require('./bot');
 
 console.log('🤖 MortisAI starting...');
 
-bot.launch()
-  .then(() => console.log('✅ MortisAI ishini muvaffaqiyatli yakunladi! (RU/UZ/EN, plans, payments, admin, groups)'))
-  .catch((err) => {
+async function startBot(retriesLeft = 5) {
+  try {
+    await bot.launch();
+    console.log('✅ MortisAI ishini muvaffaqiyatli yakunladi! (RU/UZ/EN, plans, payments, admin, groups)');
+  } catch (err) {
     console.error('❌ Error:', err.message);
+    // 409 = eski nusxa hali Telegram bilan ulanishni bo'shatmagan — kutib qayta urinamiz,
+    // shu bilan darhol qayta ishga tushib, cheksiz aylanma (crash-loop) hosil qilishning oldini olamiz.
+    if (err.message && err.message.includes('409') && retriesLeft > 0) {
+      console.log(`409 conflict — 10 soniyadan keyin qayta urinaman (${retriesLeft} ta urinish qoldi)...`);
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+      return startBot(retriesLeft - 1);
+    }
     process.exit(1);
-  });
+  }
+}
+
+startBot();
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
