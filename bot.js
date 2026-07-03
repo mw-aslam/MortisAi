@@ -18,7 +18,6 @@ const {
   setPendingAction,
   getPendingAction,
   clearPendingAction,
-  getStats,
 } = require('./db');
 const { TEXTS } = require('./prompts');
 const { getPlanConfig, getModelInfo } = require('./plans');
@@ -696,15 +695,5 @@ bot.command('status', async (ctx) => {
 
   await ctx.replyWithHTML(text.trim());
 });
-
-async function updateBotNameWithStats() {
-  try {
-    const { monthly } = getStats();
-    await bot.telegram.setMyName(`MortisAI — ${monthly} oylik foydalanuvchi`.slice(0, 64));
-  } catch (err) {
-    console.error('Bot nomini yangilashda xato:', err.message);
-  }
-}
-bot.updateBotNameWithStats = updateBotNameWithStats;
 
 module.exports = bot;
