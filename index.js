@@ -1,5 +1,11 @@
 const path = require('path');
+const dns = require('dns');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
+
+// Railway (va ko'plab hosting platformalari) IPv6 marshrutini to'liq qo'llab-quvvatlamaydi,
+// bu esa tashqi API'larga (Groq) ulanishda "Premature close" xatosiga sabab bo'ladi.
+// IPv4'ni ustuvor qilish bu muammoni oldini oladi.
+dns.setDefaultResultOrder('ipv4first');
 
 const REQUIRED_ENV = ['TELEGRAM_TOKEN', 'GROQ_API_KEY_FREE'];
 for (const key of REQUIRED_ENV) {
