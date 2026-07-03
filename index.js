@@ -21,7 +21,11 @@ const bot = require('./bot');
 console.log('🤖 MortisAI starting...');
 
 bot.launch()
-  .then(() => console.log('✅ MortisAI ishini muvaffaqiyatli yakunladi! (RU/UZ/EN, plans, payments, admin, groups)'))
+  .then(() => {
+    console.log('✅ MortisAI ishini muvaffaqiyatli yakunladi! (RU/UZ/EN, plans, payments, admin, groups)');
+    bot.updateBotNameWithStats();
+    setInterval(() => bot.updateBotNameWithStats(), 60 * 60 * 1000);
+  })
   .catch((err) => {
     console.error('❌ Error:', err.message);
     process.exit(1);
