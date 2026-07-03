@@ -1,10 +1,16 @@
 const Groq = require('groq-sdk');
+const https = require('https');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { SYSTEM_PROMPT } = require('./prompts');
 const { getHistory, addMessage, getLang, getSelectedModel, getEffectivePlan, addTokenUsage } = require('./db');
 const { getPlanConfig, getModelInfo } = require('./plans');
+
+// Railway'ning tarmoq oralig'idagi serveri keep-alive ulanishlarni jimgina yopib
+// qo'yadi, keyin SDK o'sha yopilgan ulanishdan foydalanishga urinib "Premature close"
+// xatosiga uchraydi. Har bir so'rov uchun yangi ulanish ishlatish buni oldini oladi.
+const noKeepAliveAgent = new https.Agent({ keepAlive: false });
 
 // ─── Model versiya nomlari (foydalanuvchiga ko'rinadigan) ─────────────────
 const MODEL_VERSIONS = {
@@ -36,7 +42,7 @@ function parseKeys(envVar, poolName) {
     .filter(Boolean)
     .map((key, i) => ({
       label: `${poolName}#${i + 1}`,
-      client: new Groq({ apiKey: key }),
+      client: new Groq({ apiKey: key, httpAgent: noKeepAliveAgent }),
       modelUsage: {},
       totalRequests: 0,
       totalTokens: 0,
