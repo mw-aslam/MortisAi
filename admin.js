@@ -7,7 +7,6 @@ const {
   getUsageInfo,
   getUser,
   findUserByUsername,
-  getRecentUsers,
   getAllUsers,
   restoreLegacyUsers,
   getLang,
@@ -169,13 +168,28 @@ async function notifyGiftedUser(ctx, userId, plan, until) {
 }
 
 function registerAdmin(bot) {
-  function recentUsersKeyboard() {
-    const recent = getRecentUsers(10);
-    const btns = recent.map(r => {
+  const USERS_PER_PAGE = 8;
+
+  function recentUsersKeyboard(page = 0) {
+    const all = getAllUsers();
+    const totalPages = Math.max(1, Math.ceil(all.length / USERS_PER_PAGE));
+    const clampedPage = Math.max(0, Math.min(page, totalPages - 1));
+    const slice = all.slice(clampedPage * USERS_PER_PAGE, (clampedPage + 1) * USERS_PER_PAGE);
+
+    const btns = slice.map(r => {
       const name = [r.first_name, r.last_name].filter(Boolean).join(' ') || r.user_id;
       const label = `👤 ${name.slice(0, 15)} ${r.username ? '(@' + r.username + ')' : ''}`;
       return [Markup.button.callback(label, `adm_sel_${r.user_id}`)];
     });
+
+    if (totalPages > 1) {
+      const navRow = [];
+      if (clampedPage > 0) navRow.push(Markup.button.callback('⬅️ Назад', `adm_page_${clampedPage - 1}`));
+      navRow.push(Markup.button.callback(`${clampedPage + 1}/${totalPages}`, 'adm_noop'));
+      if (clampedPage < totalPages - 1) navRow.push(Markup.button.callback('Вперёд ➡️', `adm_page_${clampedPage + 1}`));
+      btns.push(navRow);
+    }
+
     btns.push([Markup.button.callback('❌ Отмена', 'admin_menu')]);
     return { reply_markup: { inline_keyboard: btns } };
   }
@@ -210,6 +224,14 @@ function registerAdmin(bot) {
       parse_mode: 'HTML',
       ...recentUsersKeyboard(),
     });
+  }));
+
+  bot.action('adm_noop', adminOnly(async (ctx) => ctx.answerCbQuery()));
+
+  bot.action(/^adm_page_(\d+)$/, adminOnly(async (ctx) => {
+    const page = parseInt(ctx.match[1], 10);
+    await ctx.answerCbQuery();
+    await ctx.editMessageReplyMarkup(recentUsersKeyboard(page).reply_markup);
   }));
 
   bot.action(/^adm_sel_(.+)$/, adminOnly(async (ctx) => {
