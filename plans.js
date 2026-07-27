@@ -21,8 +21,17 @@ const MODEL_INFO = {
       'Javoblaring muvozanatli bo\'lsin: aniq, lekin yetarli tushuntirish ' +
       'bilan. Kerak bo\'lsa misollar keltir.',
   },
-  'openai/gpt-oss-120b': {
+  'openai/gpt-oss-20b': {
     version: 'MortisAI 4.0',
+    emoji: '🟣',
+    tagline: 'kuchli, aniqroq javoblar',
+    temperature: 0.6,
+    style:
+      'Aniq va ishonchli javob ber, kerak bo\'lsa qisqacha misol keltir. ' +
+      'Murakkab savollarda bosqichma-bosqich tushuntir.',
+  },
+  'openai/gpt-oss-120b': {
+    version: 'MortisAI 5.0',
     emoji: '🟠',
     tagline: 'eng kuchli',
     temperature: 0.55,
@@ -32,7 +41,7 @@ const MODEL_INFO = {
       'lekin tartibli va o\'qish oson bo\'lsin.',
   },
   'qwen/qwen3.6-27b': {
-    version: 'MortisAI 5.0',
+    version: 'MortisAI 6.0',
     emoji: '🔴',
     tagline: 'top reasoning',
     temperature: 0.5,
@@ -61,7 +70,7 @@ const PLANS = {
     historyLimit: 20,
     models: [
       'llama-3.3-70b-versatile',
-      'qwen/qwen3.6-27b',
+      'openai/gpt-oss-20b',
       'openai/gpt-oss-120b',
       'llama-3.1-8b-instant',
     ],
@@ -74,6 +83,7 @@ const PLANS = {
     models: [
       'qwen/qwen3.6-27b',
       'llama-3.3-70b-versatile',
+      'openai/gpt-oss-20b',
       'openai/gpt-oss-120b',
       'llama-3.1-8b-instant',
     ],

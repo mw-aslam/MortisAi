@@ -16,14 +16,16 @@ const noKeepAliveAgent = new https.Agent({ keepAlive: false });
 const MODEL_VERSIONS = {
   'llama-3.1-8b-instant':                      'MortisAI 2.5',
   'llama-3.3-70b-versatile':                   'MortisAI 3.0',
-  'openai/gpt-oss-120b':                       'MortisAI 4.0',
-  'qwen/qwen3.6-27b':                          'MortisAI 5.0',
+  'openai/gpt-oss-20b':                        'MortisAI 4.0',
+  'openai/gpt-oss-120b':                       'MortisAI 5.0',
+  'qwen/qwen3.6-27b':                          'MortisAI 6.0',
 };
 
 // ─── Groq TPM limitlari (free tier) ──────────────────────────────────────
 const MODEL_TPM = {
   'llama-3.1-8b-instant':                      14400,
   'llama-3.3-70b-versatile':                   12000,
+  'openai/gpt-oss-20b':                        10000,
   'openai/gpt-oss-120b':                        6000,
   'qwen/qwen3.6-27b':                          12000,
 };
@@ -57,6 +59,7 @@ const KEY_POOLS = {
 const MODEL_KEY_COUNTS = {
   'llama-3.1-8b-instant': 2,
   'llama-3.3-70b-versatile': 4,
+  'openai/gpt-oss-20b': 6,
   'openai/gpt-oss-120b': 8,
   'qwen/qwen3.6-27b': 10,
   'whisper-large-v3-turbo': 10,
