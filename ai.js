@@ -16,8 +16,8 @@ const noKeepAliveAgent = new https.Agent({ keepAlive: false });
 const MODEL_VERSIONS = {
   'llama-3.1-8b-instant':                      'MortisAI 2.5',
   'llama-3.3-70b-versatile':                   'MortisAI 3.0',
-  'openai/gpt-oss-120b':                       'MortisAI 5.0',
-  'qwen/qwen3.6-27b':                          'MortisAI 6.0',
+  'openai/gpt-oss-120b':                       'MortisAI 4.0',
+  'qwen/qwen3.6-27b':                          'MortisAI 5.0',
 };
 
 // ─── Groq TPM limitlari (free tier) ──────────────────────────────────────

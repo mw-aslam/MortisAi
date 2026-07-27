@@ -22,7 +22,7 @@ const MODEL_INFO = {
       'bilan. Kerak bo\'lsa misollar keltir.',
   },
   'openai/gpt-oss-120b': {
-    version: 'MortisAI 5.0',
+    version: 'MortisAI 4.0',
     emoji: '🟠',
     tagline: 'eng kuchli',
     temperature: 0.55,
@@ -32,7 +32,7 @@ const MODEL_INFO = {
       'lekin tartibli va o\'qish oson bo\'lsin.',
   },
   'qwen/qwen3.6-27b': {
-    version: 'MortisAI 6.0',
+    version: 'MortisAI 5.0',
     emoji: '🔴',
     tagline: 'top reasoning',
     temperature: 0.5,
