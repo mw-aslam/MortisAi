@@ -8,6 +8,7 @@ const {
   getUser,
   findUserByUsername,
   getRecentUsers,
+  getAllUsers,
   getLang,
   setPendingAction,
   getPendingAction,
@@ -15,6 +16,35 @@ const {
 } = require('./db');
 const { getPlanConfig } = require('./plans');
 const { TEXTS } = require('./prompts');
+
+function escapeHTML(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// Splits the full user list into Telegram-message-sized chunks (4096 char limit).
+function buildUserListChunks(rows, getEffectivePlanFn, getPlanConfigFn) {
+  const chunks = [];
+  let current = `👥 <b>Foydalanuvchilar (${rows.length}):</b>\n\n`;
+  for (const row of rows) {
+    const { plan, isAdminUser } = getEffectivePlanFn(row.user_id);
+    const cfg = getPlanConfigFn(plan);
+    const username = row.username ? `@${escapeHTML(row.username)}` : '—';
+    const name = escapeHTML([row.first_name, row.last_name].filter(Boolean).join(' ') || '—');
+    const line = `<code>${row.user_id}</code> — ${name} (${username}) — <b>${cfg.name}</b>${
+      isAdminUser ? ' 👑' : ''
+    }\n`;
+    if (current.length + line.length > 3500) {
+      chunks.push(current);
+      current = '';
+    }
+    current += line;
+  }
+  if (current) chunks.push(current);
+  return chunks;
+}
 
 function adminOnly(handler) {
   return async (ctx, ...args) => {
@@ -218,26 +248,18 @@ function registerAdmin(bot) {
 
   bot.action('admin_users', adminOnly(async (ctx) => {
     await ctx.answerCbQuery();
-    const rows = getRecentUsers(15);
+    const rows = getAllUsers();
     if (!rows.length) {
       return ctx.editMessageText('Пользователей пока нет.', {
         ...Markup.inlineKeyboard([[Markup.button.callback('⬅️ В меню', 'admin_menu')]]),
       });
     }
-    let text = '👥 <b>Последние пользователи:</b>\n\n';
-    for (const row of rows) {
-      const { plan, isAdminUser } = getEffectivePlan(row.user_id);
-      const cfg = getPlanConfig(plan);
-      const username = row.username ? `@${row.username}` : '—';
-      const name = [row.first_name, row.last_name].filter(Boolean).join(' ') || '—';
-      text += `<code>${row.user_id}</code> — ${name} (${username}) — <b>${cfg.name}</b>${
-        isAdminUser ? ' 👑' : ''
-      }\n`;
+    const chunks = buildUserListChunks(rows, getEffectivePlan, getPlanConfig);
+    await ctx.editMessageText(chunks[0], { parse_mode: 'HTML' });
+    for (let i = 1; i < chunks.length; i++) {
+      await ctx.reply(chunks[i], { parse_mode: 'HTML' });
     }
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      ...Markup.inlineKeyboard([[Markup.button.callback('⬅️ В меню', 'admin_menu')]]),
-    });
+    await ctx.reply('⬅️', Markup.inlineKeyboard([[Markup.button.callback('⬅️ В меню', 'admin_menu')]]));
   }));
 
   // Plan choice for gift
@@ -377,19 +399,12 @@ function registerAdmin(bot) {
   }));
 
   bot.command('users', adminOnly(async (ctx) => {
-    const rows = getRecentUsers(15);
+    const rows = getAllUsers();
     if (!rows.length) return ctx.reply('Пользователей пока нет.');
-    let text = '👥 <b>Последние пользователи:</b>\n\n';
-    for (const row of rows) {
-      const { plan, isAdminUser } = getEffectivePlan(row.user_id);
-      const cfg = getPlanConfig(plan);
-      const username = row.username ? `@${row.username}` : '—';
-      const name = [row.first_name, row.last_name].filter(Boolean).join(' ') || '—';
-      text += `<code>${row.user_id}</code> — ${name} (${username}) — <b>${cfg.name}</b>${
-        isAdminUser ? ' 👑' : ''
-      }\n`;
+    const chunks = buildUserListChunks(rows, getEffectivePlan, getPlanConfig);
+    for (const chunk of chunks) {
+      await ctx.reply(chunk, { parse_mode: 'HTML' });
     }
-    await ctx.reply(text, { parse_mode: 'HTML' });
   }));
 }
 

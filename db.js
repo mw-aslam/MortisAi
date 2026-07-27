@@ -81,6 +81,7 @@ const updateUsageStmt = db.prepare(
 const updateModelStmt = db.prepare('UPDATE users SET selected_model = ? WHERE user_id = ?');
 const findByUsernameStmt = db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE');
 const recentUsersStmt = db.prepare('SELECT * FROM users ORDER BY created_at DESC LIMIT ?');
+const allUsersStmt = db.prepare('SELECT * FROM users ORDER BY created_at DESC');
 const updateLastActiveStmt = db.prepare('UPDATE users SET last_active_at = ? WHERE user_id = ?');
 
 // ---- group CRUD ----
@@ -385,6 +386,10 @@ function getRecentUsers(limit = 10) {
   return recentUsersStmt.all(limit);
 }
 
+function getAllUsers() {
+  return allUsersStmt.all();
+}
+
 // ---- last_active update ----
 function updateLastActive(userId) {
   try {
@@ -451,6 +456,7 @@ module.exports = {
   clearSession,
   findUserByUsername,
   getRecentUsers,
+  getAllUsers,
   isGroupActivated,
   activateGroup,
   setPendingAction,
