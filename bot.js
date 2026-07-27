@@ -70,9 +70,8 @@ function langInlineKeyboard() {
 const ALL_MODELS = [
   'llama-3.1-8b-instant',
   'llama-3.3-70b-versatile',
-  'meta-llama/llama-4-scout-17b-16e-instruct',
   'openai/gpt-oss-120b',
-  'qwen/qwen3-32b',
+  'qwen/qwen3.6-27b',
 ];
 
 function modelLabel(model, lang) {

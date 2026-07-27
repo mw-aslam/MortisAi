@@ -113,9 +113,8 @@ const TEXTS = {
     modelTaglines: {
       'llama-3.1-8b-instant': 'быстрый',
       'llama-3.3-70b-versatile': 'улучшенный',
-      'meta-llama/llama-4-scout-17b-16e-instruct': 'мощный',
       'openai/gpt-oss-120b': 'самый мощный',
-      'qwen/qwen3-32b': 'топовое рассуждение',
+      'qwen/qwen3.6-27b': 'топовое рассуждение',
     },
 
     // ---- plans / premium ----
@@ -260,9 +259,8 @@ Guruhlarda: meni admin qilib qo'shing, ⭐ orqali faollashtiring va reply yoki @
     modelTaglines: {
       'llama-3.1-8b-instant': 'tezkor',
       'llama-3.3-70b-versatile': 'yaxshilangan',
-      'meta-llama/llama-4-scout-17b-16e-instruct': 'kuchli',
       'openai/gpt-oss-120b': 'eng kuchli',
-      'qwen/qwen3-32b': 'top reasoning',
+      'qwen/qwen3.6-27b': 'top reasoning',
     },
 
     packages: {
@@ -402,9 +400,8 @@ In groups: add me as admin, activate with ⭐, then reply or @mention me.`,
     modelTaglines: {
       'llama-3.1-8b-instant': 'fast',
       'llama-3.3-70b-versatile': 'improved',
-      'meta-llama/llama-4-scout-17b-16e-instruct': 'powerful',
       'openai/gpt-oss-120b': 'most powerful',
-      'qwen/qwen3-32b': 'top reasoning',
+      'qwen/qwen3.6-27b': 'top reasoning',
     },
 
     packages: {

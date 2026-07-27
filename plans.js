@@ -21,15 +21,6 @@ const MODEL_INFO = {
       'Javoblaring muvozanatli bo\'lsin: aniq, lekin yetarli tushuntirish ' +
       'bilan. Kerak bo\'lsa misollar keltir.',
   },
-  'meta-llama/llama-4-scout-17b-16e-instruct': {
-    version: 'MortisAI 4.0',
-    emoji: '🟣',
-    tagline: 'kuchli',
-    temperature: 0.6,
-    style:
-      'Chuqur va tizimli javob ber. Murakkab mavzularni bosqichma-bosqich ' +
-      'tushuntir, lekin suvni ko\'paytirma. Tasvirlarni ham puxta tahlil qil.',
-  },
   'openai/gpt-oss-120b': {
     version: 'MortisAI 5.0',
     emoji: '🟠',
@@ -40,7 +31,7 @@ const MODEL_INFO = {
       'Kod bo\'lsa — barcha edge-case\'larni hisobga ol. Tahlil chuqur bo\'lsin, ' +
       'lekin tartibli va o\'qish oson bo\'lsin.',
   },
-  'qwen/qwen3-32b': {
+  'qwen/qwen3.6-27b': {
     version: 'MortisAI 6.0',
     emoji: '🔴',
     tagline: 'top reasoning',
@@ -48,8 +39,8 @@ const MODEL_INFO = {
     style:
       'Murakkab mantiqiy fikrlash talab qiladigan vazifalarda qadam-baqadam ' +
       'mulohaza yuritib, faqat shundan keyin yakuniy javobni ber. Xatolarsiz, ' +
-      'tekshirilgan va eng yuqori aniqlikdagi javob ber. Bu eng kuchli versiya — ' +
-      'shunga yarasha chuqur va ishonchli bo\'l.',
+      'tekshirilgan va eng yuqori aniqlikdagi javob ber. Tasvirlarni ham puxta ' +
+      'tahlil qil. Bu eng kuchli versiya — shunga yarasha chuqur va ishonchli bo\'l.',
   },
 };
 
@@ -70,7 +61,7 @@ const PLANS = {
     historyLimit: 20,
     models: [
       'llama-3.3-70b-versatile',
-      'meta-llama/llama-4-scout-17b-16e-instruct',
+      'qwen/qwen3.6-27b',
       'openai/gpt-oss-120b',
       'llama-3.1-8b-instant',
     ],
@@ -81,9 +72,8 @@ const PLANS = {
     dailyTokens: 5000000,
     historyLimit: 40,
     models: [
-      'qwen/qwen3-32b',
+      'qwen/qwen3.6-27b',
       'llama-3.3-70b-versatile',
-      'meta-llama/llama-4-scout-17b-16e-instruct',
       'openai/gpt-oss-120b',
       'llama-3.1-8b-instant',
     ],

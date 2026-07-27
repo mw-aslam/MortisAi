@@ -16,18 +16,16 @@ const noKeepAliveAgent = new https.Agent({ keepAlive: false });
 const MODEL_VERSIONS = {
   'llama-3.1-8b-instant':                      'MortisAI 2.5',
   'llama-3.3-70b-versatile':                   'MortisAI 3.0',
-  'meta-llama/llama-4-scout-17b-16e-instruct': 'MortisAI 4.0',
   'openai/gpt-oss-120b':                       'MortisAI 5.0',
-  'qwen/qwen3-32b':                            'MortisAI 6.0',
+  'qwen/qwen3.6-27b':                          'MortisAI 6.0',
 };
 
 // ─── Groq TPM limitlari (free tier) ──────────────────────────────────────
 const MODEL_TPM = {
   'llama-3.1-8b-instant':                      14400,
   'llama-3.3-70b-versatile':                   12000,
-  'meta-llama/llama-4-scout-17b-16e-instruct': 30000,
   'openai/gpt-oss-120b':                        6000,
-  'qwen/qwen3-32b':                            12000,
+  'qwen/qwen3.6-27b':                          12000,
 };
 
 // ─── Key pool parser ──────────────────────────────────────────────────────
@@ -59,9 +57,8 @@ const KEY_POOLS = {
 const MODEL_KEY_COUNTS = {
   'llama-3.1-8b-instant': 2,
   'llama-3.3-70b-versatile': 4,
-  'meta-llama/llama-4-scout-17b-16e-instruct': 6,
   'openai/gpt-oss-120b': 8,
-  'qwen/qwen3-32b': 10,
+  'qwen/qwen3.6-27b': 10,
   'whisper-large-v3-turbo': 10,
 };
 
@@ -134,7 +131,7 @@ function getKeysStatus() {
 }
 
 // ─── Groq call ────────────────────────────────────────────────────────────
-const VISION_MODEL  = 'meta-llama/llama-4-scout-17b-16e-instruct';
+const VISION_MODEL  = 'qwen/qwen3.6-27b';
 const WHISPER_MODEL = 'whisper-large-v3-turbo';
 
 async function callGroqForUser(userId, baseMessages) {
@@ -167,7 +164,7 @@ async function callGroqForUser(userId, baseMessages) {
         continue;
       }
       try {
-        const isReasoningModel = model === 'qwen/qwen3-32b';
+        const isReasoningModel = model === 'qwen/qwen3.6-27b';
         const res = await keyObj.client.chat.completions.create({
           model,
           messages,
@@ -198,6 +195,12 @@ async function callGroqForUser(userId, baseMessages) {
           continue; // try next key for the SAME model first
         }
         if (err.status === 413 || err.status === 503) { continue; }
+        if (err.status === 404) {
+          // Model Groq tomonidan o'chirilgan/mavjud emas — boshqa kalitni sinash foydasiz,
+          // darhol ro'yxatdagi keyingi modelga o'tamiz.
+          console.log(`${MODEL_VERSIONS[model] || model}: model topilmadi (404) — keyingi modelga o'tyapman...`);
+          break;
+        }
         throw err;
       }
     }
