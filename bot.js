@@ -27,6 +27,14 @@ const { notifyNewUser, notifyFeedback } = require('./notifications');
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN);
 
+// Telegraf'ning standart xatti-harakati: bot.catch() bo'lmasa, bitta
+// kutilmagan xato (masalan HTML formatlash xatosi) butun polling tsiklini
+// to'xtatib qo'yadi — ya'ni BARCHA foydalanuvchilar uchun bot o'lib qoladi,
+// Railway uni qayta ishga tushirmaguncha. Bu global tutqich shuni oldini oladi.
+bot.catch((err, ctx) => {
+  console.error(`Global bot error (update ${ctx.updateType}):`, err.message);
+});
+
 function stripHTML(text) {
   return text
     .replace(/<b>([\s\S]*?)<\/b>/g, '$1')
@@ -279,7 +287,7 @@ bot.start(async (ctx) => {
   const lang = getLang(ctx.from.id);
   const t = TEXTS[lang];
   try {
-    await ctx.replyWithHTML(t.welcome(ctx.from?.first_name), mainKeyboard(ctx.from.id));
+    await ctx.replyWithHTML(t.welcome(escapeHTML(ctx.from?.first_name)), mainKeyboard(ctx.from.id));
   } catch {
     await ctx.reply('Hello! I am MortisAI.', mainKeyboard(ctx.from.id));
   }
@@ -319,7 +327,7 @@ async function doModel(ctx) {
   const current = getSelectedModel(ctx.from.id);
   const { plan } = getEffectivePlan(ctx.from.id);
   const cfg = getPlanConfig(plan);
-  await ctx.reply(t.modelChooseTitle(modelLabel(current), cfg.name), {
+  await ctx.reply(t.modelChooseTitle(modelLabel(current, lang), cfg.name), {
     parse_mode: 'HTML',
     ...modelKeyboard(ctx.from.id),
   });
@@ -342,7 +350,7 @@ bot.action(/^model_(.+)$/, async (ctx) => {
 
   setSelectedModel(userId, model);
   await ctx.answerCbQuery('✅');
-  await ctx.editMessageText(t.modelSet(modelLabel(model)), { parse_mode: 'HTML' });
+  await ctx.editMessageText(t.modelSet(modelLabel(model, lang)), { parse_mode: 'HTML' });
 });
 
 // ---- Feedback / Report (button-driven via pending state) ----
@@ -417,10 +425,14 @@ for (const code of ['ru', 'uz', 'en']) {
     setLang(ctx.from.id, code);
     await ctx.answerCbQuery(`${LANG_NAMES[code]} ✅`);
     await ctx.editMessageText(TEXTS[code].langChanged);
-    await ctx.reply(TEXTS[code].welcome(ctx.from?.first_name), {
-      parse_mode: 'HTML',
-      ...mainKeyboard(ctx.from.id),
-    });
+    try {
+      await ctx.reply(TEXTS[code].welcome(escapeHTML(ctx.from?.first_name)), {
+        parse_mode: 'HTML',
+        ...mainKeyboard(ctx.from.id),
+      });
+    } catch {
+      await ctx.reply('Hello!', mainKeyboard(ctx.from.id));
+    }
   });
 }
 
@@ -660,24 +672,24 @@ bot.command('status', async (ctx) => {
   if (!isAdmin(ctx.from.id)) return;
 
   const statuses = getKeysStatus();
-  const planLabels = { free: 'рџџў FREE', pro: 'рџ”µ PRO', max: 'рџљЂ MAX' };
+  const planLabels = { free: '🟢 FREE', pro: '🔵 PRO', max: '🚀 MAX' };
   const pools = {};
   for (const k of statuses) {
     if (!pools[k.pool]) pools[k.pool] = [];
     pools[k.pool].push(k);
   }
 
-  let text = 'рџ“Љ <b>MortisAI вЂ” API holati</b>\n\n';
+  let text = '📊 <b>MortisAI — API holati</b>\n\n';
   for (const [planName, keys] of Object.entries(pools)) {
     const totalReqs = keys.reduce((s, k) => s + k.totalRequests, 0);
     const totalToks = keys.reduce((s, k) => s + k.totalTokens, 0);
 
-    text += `${planLabels[planName] || planName} pool вЂ” ${keys.length} ta key\n`;
+    text += `${planLabels[planName] || planName} pool — ${keys.length} ta key\n`;
     text += `Jami: ${totalReqs} so'rov | ${totalToks.toLocaleString()} token\n`;
 
     for (const k of keys) {
       text += `\n<b>${k.label}</b>`;
-      if (k.errors429 > 0) text += ` вљ пёЏ ${k.errors429}x 429`;
+      if (k.errors429 > 0) text += ` ⚠️ ${k.errors429}x 429`;
       text += '\n';
 
       if (!k.modelStats.length) {
@@ -685,8 +697,8 @@ bot.command('status', async (ctx) => {
       } else {
         for (const ms of k.modelStats) {
           const filled = Math.min(10, Math.round(ms.pct / 10));
-          const bar = 'в–€'.repeat(filled) + 'в–‘'.repeat(10 - filled);
-          text += `<code>[${bar}]</code> ${ms.version}: ${ms.pct}% (${ms.tokens.toLocaleString()}/${ms.limit.toLocaleString()}) вЏ±пёЏ${ms.resetIn}s\n`;
+          const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+          text += `<code>[${bar}]</code> ${ms.version}: ${ms.pct}% (${ms.tokens.toLocaleString()}/${ms.limit.toLocaleString()}) ⏱️${ms.resetIn}s\n`;
         }
       }
     }

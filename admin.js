@@ -120,8 +120,8 @@ async function sendUserInfo(ctx, userId) {
   const usage = getUsageInfo(userId);
   const cfg = getPlanConfig(plan);
 
-  const fullName = [row.first_name, row.last_name].filter(Boolean).join(' ') || '—';
-  const username = row.username ? `@${row.username}` : 'не указан';
+  const fullName = escapeHTML([row.first_name, row.last_name].filter(Boolean).join(' ') || '—');
+  const username = row.username ? `@${escapeHTML(row.username)}` : 'не указан';
   const created = new Date(row.created_at).toLocaleString('ru-RU', { timeZone: 'Asia/Tashkent' });
 
   const t = usage.tokens;
