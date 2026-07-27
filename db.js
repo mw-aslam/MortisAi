@@ -2,7 +2,10 @@ const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
 const { getPlanConfig } = require('./plans');
 
-const db = new DatabaseSync(path.join(__dirname, 'mortisai.db'));
+// DB_PATH — Railway Volume (doimiy disk) ulanganda shu yerga ko'rsatiladi,
+// shunda baza fayli har bir deploy'da qayta boshlanmaydi/o'chmaydi.
+// Mahalliy ishlashda esa loyiha papkasidagi fayl ishlatiladi.
+const db = new DatabaseSync(process.env.DB_PATH || path.join(__dirname, 'mortisai.db'));
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
