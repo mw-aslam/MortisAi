@@ -86,6 +86,28 @@ const findByUsernameStmt = db.prepare('SELECT * FROM users WHERE username = ? CO
 const recentUsersStmt = db.prepare('SELECT * FROM users ORDER BY created_at DESC LIMIT ?');
 const allUsersStmt = db.prepare('SELECT * FROM users ORDER BY created_at DESC');
 const updateLastActiveStmt = db.prepare('UPDATE users SET last_active_at = ? WHERE user_id = ?');
+const restoreLegacyUserStmt = db.prepare(`
+  INSERT OR IGNORE INTO users (user_id, lang, username, first_name, created_at, daily_reset_at, last_active_at)
+  VALUES (?, 'ru', ?, ?, ?, ?, ?)
+`);
+
+// One-time recovery for users lost when the DB lived on ephemeral storage.
+// Safe to call repeatedly — existing user_ids are left untouched.
+function restoreLegacyUsers(list) {
+  let inserted = 0;
+  for (const u of list) {
+    const info = restoreLegacyUserStmt.run(
+      u.userId,
+      u.username || null,
+      u.firstName || null,
+      u.createdAt,
+      u.createdAt,
+      u.createdAt
+    );
+    if (info.changes > 0) inserted++;
+  }
+  return inserted;
+}
 
 // ---- group CRUD ----
 const getGroupStmt = db.prepare('SELECT * FROM groups WHERE chat_id = ?');
@@ -467,4 +489,5 @@ module.exports = {
   clearPendingAction,
   updateLastActive,
   getStats,
+  restoreLegacyUsers,
 };

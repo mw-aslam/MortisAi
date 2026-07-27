@@ -9,6 +9,7 @@ const {
   findUserByUsername,
   getRecentUsers,
   getAllUsers,
+  restoreLegacyUsers,
   getLang,
   setPendingAction,
   getPendingAction,
@@ -405,6 +406,37 @@ function registerAdmin(bot) {
     for (const chunk of chunks) {
       await ctx.reply(chunk, { parse_mode: 'HTML' });
     }
+  }));
+
+  // One-time recovery: DB lived on ephemeral storage before the Volume was
+  // attached, so users registered before that lost their DB rows. Their
+  // identity was still recoverable from the admin "new user" notifications.
+  // Safe to run more than once — existing user_ids are left untouched.
+  bot.command('restore_legacy_users', adminOnly(async (ctx) => {
+    const legacyUsers = [
+      { userId: 1118457274, firstName: "She'rozbek Baxtiyorov", username: 'sherozbek_17', createdAt: Date.UTC(2026, 5, 13, 6, 1) },
+      { userId: 1824934284, firstName: "АHMEDOV BEHRO'Z.", username: 'Behruz651', createdAt: Date.UTC(2026, 5, 13, 7, 25) },
+      { userId: 8105823872, firstName: 'Teacher', username: 'mentor_cc', createdAt: Date.UTC(2026, 5, 19, 11, 20) },
+      { userId: 7175945009, firstName: 'Muhammadjon', username: 'begaliyev1299', createdAt: Date.UTC(2026, 5, 28, 9, 38) },
+      { userId: 8650323453, firstName: 'Muhammad Begaliyev', username: 'begaliyev1999', createdAt: Date.UTC(2026, 5, 28, 9, 49) },
+      { userId: 5504101440, firstName: '𝒙𝒔𝒂𝒌𝒎', username: 'xsakm', createdAt: Date.UTC(2026, 5, 28, 11, 21) },
+      { userId: 714625255, firstName: 'Ruslan', username: null, createdAt: Date.UTC(2026, 5, 28, 16, 39) },
+      { userId: 8449792768, firstName: 'Abdusamad', username: 'abdusamad_off', createdAt: Date.UTC(2026, 5, 28, 22, 25) },
+      { userId: 7658365667, firstName: 'umid', username: 'umidulloh_uz', createdAt: Date.UTC(2026, 5, 29, 10, 56) },
+      { userId: 5720304844, firstName: 'Muhammadxonoviç', username: 'Muyd1nkhon', createdAt: Date.UTC(2026, 5, 29, 11, 56) },
+      { userId: 8720689723, firstName: 'Shoxakbar', username: 'Zakirov_First', createdAt: Date.UTC(2026, 5, 29, 12, 14) },
+      { userId: 8048175715, firstName: 'Bunyodek', username: 'bunMaste', createdAt: Date.UTC(2026, 5, 29, 12, 24) },
+      { userId: 1352577912, firstName: 'Мухаммад Али', username: 'kamiljonov_m', createdAt: Date.UTC(2026, 6, 2, 13, 12) },
+      { userId: 7387425682, firstName: 'Abubakr', username: 'The_abi', createdAt: Date.UTC(2026, 6, 3, 11, 59) },
+      { userId: 7878080042, firstName: "Doniyor Muhammad G'aniboye", username: null, createdAt: Date.UTC(2026, 6, 3, 12, 25) },
+      { userId: 8887228007, firstName: 'mw_aslam', username: 'mw_aslamm', createdAt: Date.UTC(2026, 6, 14, 20, 1) },
+      { userId: 7233361945, firstName: 'Itsbagati', username: 'Itsbagati', createdAt: Date.UTC(2026, 6, 16, 14, 36) },
+      { userId: 607457713, firstName: '00', username: null, createdAt: Date.UTC(2026, 6, 18, 14, 9) },
+      { userId: 8231850010, firstName: 'RakhmonalievKSA', username: 'rakh_monaliyev', createdAt: Date.UTC(2026, 6, 22, 17, 52) },
+      { userId: 8212900072, firstName: 'eclipse', username: null, createdAt: Date.UTC(2026, 6, 27, 12, 31) },
+    ];
+    const inserted = restoreLegacyUsers(legacyUsers);
+    await ctx.reply(`✅ Tiklandi: ${inserted} ta yangi yozuv (${legacyUsers.length - inserted} tasi allaqachon bor edi).`);
   }));
 }
 
