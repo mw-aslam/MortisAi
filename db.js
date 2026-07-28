@@ -5,7 +5,13 @@ const { getPlanConfig } = require('./plans');
 // DB_PATH — Railway Volume (doimiy disk) ulanganda shu yerga ko'rsatiladi,
 // shunda baza fayli har bir deploy'da qayta boshlanmaydi/o'chmaydi.
 // Mahalliy ishlashda esa loyiha papkasidagi fayl ishlatiladi.
-const db = new DatabaseSync(process.env.DB_PATH || path.join(__dirname, 'mortisai.db'));
+const resolvedDbPath = process.env.DB_PATH || path.join(__dirname, 'mortisai.db');
+console.log(
+  process.env.DB_PATH
+    ? `[db] DB_PATH sozlangan, baza shu yerda: ${resolvedDbPath}`
+    : `[db] ⚠️ DB_PATH sozlanMAGAN — vaqtinchalik joyda: ${resolvedDbPath} (Volume ulanmagan bo'lishi mumkin!)`
+);
+const db = new DatabaseSync(resolvedDbPath);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
