@@ -267,6 +267,11 @@ function registerAdmin(bot) {
       await ctx.deleteMessage().catch(() => {});
       return sendUserInfo(ctx, userId);
     }
+
+    // pending.type eskirgan/kutilmagan qiymat bo'lsa — tugmaning "yuklanmoqda"
+    // holatida abadiy qolib ketmasligi uchun tozalab, xabar beramiz.
+    clearPendingAction(ctx.from.id);
+    await ctx.answerCbQuery('Amal muddati tugagan, /admin dan qaytadan boshlang.', { show_alert: true });
   }));
 
   bot.action('admin_users', adminOnly(async (ctx) => {
@@ -342,10 +347,12 @@ function registerAdmin(bot) {
   // has a pending action — so the message never reaches the AI.
   bot.on('text', async (ctx, next) => {
     if (!isAdmin(ctx.from.id)) return next();
+    const raw = ctx.message.text.trim();
+    // Buyruqlar (/users, /grant va h.k.) doim ustuvor bo'lishi kerak — aks holda
+    // eski (tugallanmagan) kutish holati ularni "ID/username" deb yutib yuboradi.
+    if (raw.startsWith('/')) return next();
     const pending = getPendingAction(ctx.from.id);
     if (!pending) return next();
-
-    const raw = ctx.message.text.trim();
 
     if (pending.type === 'admin_gift_user') {
       const userId = resolveTarget(raw);
